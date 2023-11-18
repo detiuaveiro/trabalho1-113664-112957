@@ -172,6 +172,26 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
   assert (height >= 0);
   assert (0 < maxval && maxval <= PixMax);
   // Insert your code here!
+  Image image = (Image)malloc(sizeof(struct image));
+
+  if (image==NULL) {
+    errCause = "Failed to allocate image.";
+    return NULL;
+  }
+
+  image->width=width;
+  image->height=height;
+  image->maxval=maxval;
+  image->pixel=(uint8 *)malloc(sizeof(uint8)*width*height);
+
+  if (image->pixel==NULL) {
+    errCause = "Failed to allocate pixels.";
+    free(image);
+    return NULL;
+  }
+  
+  return image;
+
 }
 
 /// Destroy the image pointed to by (*imgp).
