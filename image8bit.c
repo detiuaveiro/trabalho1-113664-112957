@@ -344,7 +344,7 @@ int ImageValidPos(Image img, int x, int y) { ///
 int ImageValidRect(Image img, int x, int y, int w, int h) { ///
   assert (img != NULL);
   // Insert your code here!
-
+  return 0; // replace this line
 }
 
 /// Pixel get & set operations
@@ -440,6 +440,7 @@ void ImageBrighten(Image img, double factor) { ///
 Image ImageRotate(Image img) { ///
   assert (img != NULL);
   // Insert your code here!
+  return NULL; // replace this line
 }
 
 /// Mirror an image = flip left-right.
@@ -452,6 +453,7 @@ Image ImageRotate(Image img) { ///
 Image ImageMirror(Image img) { ///
   assert (img != NULL);
   // Insert your code here!
+  return NULL; // replace this line
 }
 
 /// Crop a rectangular subimage from img.
@@ -470,6 +472,7 @@ Image ImageCrop(Image img, int x, int y, int w, int h) { ///
   assert (img != NULL);
   assert (ImageValidRect(img, x, y, w, h));
   // Insert your code here!
+  return NULL; // replace this line
 }
 
 
@@ -507,6 +510,7 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) { ///
   assert (img2 != NULL);
   assert (ImageValidPos(img1, x, y));
   // Insert your code here!
+  return 0; // replace this line
 }
 
 /// Locate a subimage inside another image.
@@ -517,6 +521,7 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
   assert (img1 != NULL);
   assert (img2 != NULL);
   // Insert your code here!
+  return 0; // replace this line
 }
 
 
