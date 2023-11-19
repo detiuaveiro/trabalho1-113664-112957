@@ -10,7 +10,7 @@
 /// 2013, 2023
 
 // Student authors (fill in below):
-// NMec:  Name:
+// NMec: 113664  Name: Diogo Lopes Oliveira 
 // 
 // 
 // 
@@ -189,7 +189,7 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
     free(image);
     return NULL;
   }
-  
+
   return image;
 
 }
@@ -201,6 +201,9 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
 /// Should never fail, and should preserve global errno/errCause.
 void ImageDestroy(Image* imgp) { ///
   assert (imgp != NULL);
+  free((*imgp)->pixel);
+  free(*imgp);
+  *imgp = NULL;
   // Insert your code here!
 }
 
@@ -313,7 +316,22 @@ int ImageMaxval(Image img) { ///
 /// *max is set to the maximum.
 void ImageStats(Image img, uint8* min, uint8* max) { ///
   assert (img != NULL);
-  // Insert your code here!
+  assert (img->width > 0 && img->height > 0);
+
+  *min = img->pixel[0];     // Atribuição inicial do valor mínimo com o primeiro valor do pixel da imagem
+  *max = img->pixel[0];     // Atribuição inicial do valor máximo com o primeiro valor do pixel da imagem
+
+  for (int i=1; i<img->width*img->height; i++) {                  // Percorre todos os pixeis da imagem
+    uint8 pixelval = img->pixel[i];                                  // Atribui o valor do pixel a uma variável
+
+    if (pixelval < *min) {                                          // Se o valor do pixel for menor que o valor mínimo
+      *min = pixelval;                                                // O valor mínimo passa a ser o valor do pixel
+    }
+    if (pixelval > *max) {                                     // Se o valor do pixel for maior que o valor máximo
+      *max = pixelval;                                                // O valor máximo passa a ser o valor do pixel
+    }
+
+  }
 }
 
 /// Check if pixel position (x,y) is inside img.
@@ -326,6 +344,7 @@ int ImageValidPos(Image img, int x, int y) { ///
 int ImageValidRect(Image img, int x, int y, int w, int h) { ///
   assert (img != NULL);
   // Insert your code here!
+
 }
 
 /// Pixel get & set operations
@@ -340,7 +359,7 @@ int ImageValidRect(Image img, int x, int y, int w, int h) { ///
 // The returned index must satisfy (0 <= index < img->width*img->height)
 static inline int G(Image img, int x, int y) {
   int index;
-  // Insert your code here!
+  index = y*img->width + x;
   assert (0 <= index && index < img->width*img->height);
   return index;
 }
