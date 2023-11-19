@@ -343,8 +343,7 @@ int ImageValidPos(Image img, int x, int y) { ///
 /// Check if rectangular area (x,y,w,h) is completely inside img.
 int ImageValidRect(Image img, int x, int y, int w, int h) { ///
   assert (img != NULL);
-  // Insert your code here!
-  return 0; // replace this line
+  return (0 <= x && x+w <= img->width) && (0 <= y && y+h <= img->height); 
 }
 
 /// Pixel get & set operations
@@ -394,7 +393,11 @@ void ImageSetPixel(Image img, int x, int y, uint8 level) { ///
 /// resulting in a "photographic negative" effect.
 void ImageNegative(Image img) { ///
   assert (img != NULL);
-  // Insert your code here!
+                                    // Atribuição inicial do valor mínimo com o primeiro valor do pixel da imagem
+  for (int i=0; i<img->width*img->height; i++) {                  // Percorre todos os pixeis da imagem
+    img->pixel[i] = img->maxval - img->pixel[i];                      
+  }
+
 }
 
 /// Apply threshold to image.
@@ -402,7 +405,14 @@ void ImageNegative(Image img) { ///
 /// all pixels with level>=thr to white (maxval).
 void ImageThreshold(Image img, uint8 thr) { ///
   assert (img != NULL);
-  // Insert your code here!
+  for(int i=0; i<img->width*img->height; i++) {                   // Percorre todos os pixeis da imagem
+    if (img->pixel[i] < thr) {                                      // Se o valor do pixel for menor que o threshold
+      img->pixel[i] = 0;                                              // O valor do pixel passa a ser 0
+    }
+    else {                                                          // Se o valor do pixel for maior ou igual ao threshold
+      img->pixel[i] = img->maxval;                                    // O valor do pixel passa a ser o valor máximo
+    }
+  }
 }
 
 /// Brighten image by a factor.
@@ -411,8 +421,16 @@ void ImageThreshold(Image img, uint8 thr) { ///
 /// darken the image if factor<1.0.
 void ImageBrighten(Image img, double factor) { ///
   assert (img != NULL);
-  // ? assert (factor >= 0.0);
-  // Insert your code here!
+  assert (factor >= 0.0);
+  for(int i=0; i<img->width*img->height; i++) {                   // Percorre todos os pixeis da imagem
+    if (img->pixel[i] * factor > img->maxval) {                      // Se o valor do pixel multiplicado pelo factor for maior que o valor máximo
+      img->pixel[i] = img->maxval;                                    // O valor do pixel passa a ser o valor máximo
+    }
+    else {                                                          // Se o valor do pixel multiplicado pelo factor for menor ou igual ao valor máximo
+      img->pixel[i] = (int)(img->pixel[i] * factor+0.5);                         // O valor do pixel passa a ser o valor do pixel multiplicado pelo factor
+    }
+  }
+
 }
 
 
@@ -510,7 +528,7 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) { ///
   assert (img2 != NULL);
   assert (ImageValidPos(img1, x, y));
   // Insert your code here!
-  return 0; // replace this line
+  
 }
 
 /// Locate a subimage inside another image.
@@ -521,7 +539,6 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
   assert (img1 != NULL);
   assert (img2 != NULL);
   // Insert your code here!
-  return 0; // replace this line
 }
 
 
