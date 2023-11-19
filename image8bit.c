@@ -457,8 +457,19 @@ void ImageBrighten(Image img, double factor) { ///
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageRotate(Image img) { ///
   assert (img != NULL);
-  // Insert your code here!
-  return NULL; // replace this line
+  Image image = ImageCreate(img->height, img->width, img->maxval);  // Cria uma nova imagem com a largura e altura trocadas
+  if (image==NULL) {
+    errCause = "Failed to rotate image";        //// On failure, returns NULL and errno/errCause are set accordingly.
+    return NULL;
+  }
+  for(int x=0;x<image->width;x++) {
+    for(int y=0;y<image->height;y++) {
+      int x_rod = y;
+      int y_rod = image->width-x-1;
+      image->pixel[G(image,x_rod,y_rod)]=img->pixel[G(img,x,y)];
+    }
+  }
+  return image;
 }
 
 /// Mirror an image = flip left-right.
@@ -470,8 +481,19 @@ Image ImageRotate(Image img) { ///
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageMirror(Image img) { ///
   assert (img != NULL);
-  // Insert your code here!
-  return NULL; // replace this line
+  Image image = ImageCreate(img->width, img->height, img->maxval);  // Cria uma nova imagem com a largura e altura trocadas
+  if (image==NULL) {
+    errCause = "Failed to rotate image";        //// On failure, returns NULL and errno/errCause are set accordingly.
+    return NULL;
+  }
+  for(int x=0;x<image->width;x++) {
+    for(int y=0;y<image->height;y++) {
+      int x_mir = image->width-x-1;
+      int y_mir = y;
+      image->pixel[G(image,x_mir,y_mir)]=img->pixel[G(img,x,y)];
+    }
+  }
+  return image;
 }
 
 /// Crop a rectangular subimage from img.
