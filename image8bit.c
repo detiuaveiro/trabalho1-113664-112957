@@ -11,7 +11,7 @@
 
 // Student authors (fill in below):
 // NMec: 113664  Name: Diogo Lopes Oliveira 
-// 
+// NMec: 112957  Name: Guilherme Mendes Mesquita
 // 
 // 
 // Date:
@@ -511,8 +511,17 @@ Image ImageMirror(Image img) { ///
 Image ImageCrop(Image img, int x, int y, int w, int h) { ///
   assert (img != NULL);
   assert (ImageValidRect(img, x, y, w, h));
-  // Insert your code here!
-  return NULL; // replace this line
+  Image imCropped = ImageCreate(w,h,img->maxval);
+  if(imCropped==NULL) {
+    errCause = "Failed to crop image.";
+    return NULL;
+  }
+  for(int i=0;i<w;i++) {
+    for(int j=0;j<h;j++) {
+      imCropped->pixel[G(imCropped,i,j)]=img->pixel[G(img,x+i,y+j)];
+    }
+  }
+  return imCropped;
 }
 
 
@@ -526,7 +535,11 @@ void ImagePaste(Image img1, int x, int y, Image img2) { ///
   assert (img1 != NULL);
   assert (img2 != NULL);
   assert (ImageValidRect(img1, x, y, img2->width, img2->height));
-  // Insert your code here!
+  for(int i=0;i<img2->width;i++) {
+    for(int j=0;j<img2->height;j++) {
+      img1->pixel[G(img1,x+i,y+j)]=img2->pixel[G(img2,i,j)];
+    }
+  }
 }
 
 /// Blend an image into a larger image.
@@ -539,7 +552,11 @@ void ImageBlend(Image img1, int x, int y, Image img2, double alpha) { ///
   assert (img1 != NULL);
   assert (img2 != NULL);
   assert (ImageValidRect(img1, x, y, img2->width, img2->height));
-  // Insert your code here!
+  for(int i=0;i<img2->width;i++) {
+    for(int j=0;j<img2->height;j++) {
+      img1->pixel[G(img1,x+i,y+j)]=(int)(img1->pixel[G(img1,x+i,y+j)]*(1-alpha)+img2->pixel[G(img2,i,j)]*alpha+0.5);
+    }
+  }  
 }
 
 /// Compare an image to a subimage of a larger image.
@@ -549,8 +566,15 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) { ///
   assert (img1 != NULL);
   assert (img2 != NULL);
   assert (ImageValidPos(img1, x, y));
-  // Insert your code here!
   
+  for(int i=0;i<img2->width;i++) {
+    for(int j=0;j<img2->height;j++) {
+      if(img1->pixel[G(img1,x+i,y+j)]!=img2->pixel[G(img2,i,j)]) {
+        return 0;
+      }
+    }
+  }
+  return 1; 
 }
 
 /// Locate a subimage inside another image.
@@ -560,7 +584,9 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) { ///
 int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
   assert (img1 != NULL);
   assert (img2 != NULL);
-  // Insert your code here!
+  assert (px!=NULL);
+  assert(py!=NULL);
+  
 }
 
 
