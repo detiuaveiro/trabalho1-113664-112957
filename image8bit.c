@@ -466,7 +466,7 @@ Image ImageRotate(Image img) { ///
     for(int y=0;y<image->height;y++) {
       int x_rod = y;
       int y_rod = image->width-x-1;
-      image->pixel[G(image,x_rod,y_rod)]=img->pixel[G(img,x,y)];
+      ImageSetPixel(image,x_rod,y_rod,ImageGetPixel(img,x,y));
     }
   }
   return image;
@@ -490,7 +490,7 @@ Image ImageMirror(Image img) { ///
     for(int y=0;y<image->height;y++) {
       int x_mir = image->width-x-1;
       int y_mir = y;
-      image->pixel[G(image,x_mir,y_mir)]=img->pixel[G(img,x,y)];
+      ImageSetPixel(image,x_mir,y_mir,ImageGetPixel(img,x,y));
     }
   }
   return image;
@@ -518,7 +518,7 @@ Image ImageCrop(Image img, int x, int y, int w, int h) { ///
   }
   for(int i=0;i<w;i++) {
     for(int j=0;j<h;j++) {
-      imCropped->pixel[G(imCropped,i,j)]=img->pixel[G(img,x+i,y+j)];
+      ImageSetPixel(imCropped,i,j,ImageGetPixel(img,x+i,y+j));
     }
   }
   return imCropped;
@@ -537,7 +537,7 @@ void ImagePaste(Image img1, int x, int y, Image img2) { ///
   assert (ImageValidRect(img1, x, y, img2->width, img2->height));
   for(int i=0;i<img2->width;i++) {
     for(int j=0;j<img2->height;j++) {
-      img1->pixel[G(img1,x+i,y+j)]=img2->pixel[G(img2,i,j)];
+      ImageSetPixel(img1,x+i,y+j,ImageGetPixel(img2,i,j));
     }
   }
 }
@@ -554,7 +554,19 @@ void ImageBlend(Image img1, int x, int y, Image img2, double alpha) { ///
   assert (ImageValidRect(img1, x, y, img2->width, img2->height));
   for(int i=0;i<img2->width;i++) {
     for(int j=0;j<img2->height;j++) {
-      img1->pixel[G(img1,x+i,y+j)]=(int)(img1->pixel[G(img1,x+i,y+j)]*(1-alpha)+img2->pixel[G(img2,i,j)]*alpha+0.5);
+      int pixel1 = ImageGetPixel(img1,x+i,y+j);
+      int pixel2 = ImageGetPixel(img2,i,j);
+      int pixel = (int)(pixel1*(1-alpha)+pixel2*alpha+0.5);
+      if(pixel>img1->maxval) {
+        pixel=img1->maxval;
+      }
+      if(pixel<0) {
+        pixel=0;
+      }
+      ImageSetPixel(img1,x+i,y+j,pixel);
+
+      //Também possível da seguinte forma:
+      //img1->pixel[G(img1,x+i,y+j)]=(int)(img1->pixel[G(img1,x+i,y+j)]*(1-alpha)+img2->pixel[G(img2,i,j)]*alpha+0.5);
     }
   }  
 }
@@ -569,7 +581,7 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) { ///
   
   for(int i=0;i<img2->width;i++) {
     for(int j=0;j<img2->height;j++) {
-      if(img1->pixel[G(img1,x+i,y+j)]!=img2->pixel[G(img2,i,j)]) {
+      if(ImageGetPixel(img1,x+i,y+j)!=ImageGetPixel(img2,i,j)) {
         return 0;
       }
     }
@@ -586,7 +598,16 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
   assert (img2 != NULL);
   assert (px!=NULL);
   assert(py!=NULL);
-  
+  for(int i=0;i<img1->width-img2->width+1;i++) {
+    for(int j=0;j<img1->height-img2->height+1;j++) {
+      if(ImageMatchSubImage(img1,i,j,img2)) {
+        *px=i;
+        *py=j;
+        return 1;
+      }
+    }
+  }
+  return 0;
 }
 
 
@@ -597,6 +618,13 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
 void ImageBlur(Image img, int dx, int dy) { ///
-  // Insert your code here!
+  assert(img!=NULL);
+  assert(dx>=0 && dy>=0);
+  Image imgBlur = ImageCreate(img->width,img->height,img->maxval);
+  if(imgBlur==NULL) {
+    errCause = "Failed to blur image.";
+    return;
+  }
+  //Falta acabar
 }
 
