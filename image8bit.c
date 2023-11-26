@@ -201,6 +201,7 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
 /// Should never fail, and should preserve global errno/errCause.
 void ImageDestroy(Image* imgp) { ///
   assert (imgp != NULL);
+  if (*imgp == NULL) return;
   free((*imgp)->pixel);
   free(*imgp);
   *imgp = NULL;
@@ -395,7 +396,8 @@ void ImageNegative(Image img) { ///
   assert (img != NULL);
                                     // Atribuição inicial do valor mínimo com o primeiro valor do pixel da imagem
   for (int i=0; i<img->width*img->height; i++) {                  // Percorre todos os pixeis da imagem
-    img->pixel[i] = img->maxval - img->pixel[i];                      
+    img->pixel[i] = img->maxval - img->pixel[i];     
+    PIXMEM++;                 
   }
 
 }
@@ -412,6 +414,7 @@ void ImageThreshold(Image img, uint8 thr) { ///
     else {                                                          // Se o valor do pixel for maior ou igual ao threshold
       img->pixel[i] = img->maxval;                                    // O valor do pixel passa a ser o valor máximo
     }
+    PIXMEM+=2;
   }
 }
 
@@ -422,13 +425,15 @@ void ImageThreshold(Image img, uint8 thr) { ///
 void ImageBrighten(Image img, double factor) { ///
   assert (img != NULL);
   assert (factor >= 0.0);
-  for(int i=0; i<img->width*img->height; i++) {                   // Percorre todos os pixeis da imagem
-    if (img->pixel[i] * factor > img->maxval) {                      // Se o valor do pixel multiplicado pelo factor for maior que o valor máximo
+  for(int i=0; i<img->width*img->height; i++) {  
+    uint8 pix = (img->pixel[i] * factor+0.5);                                          // Percorre todos os pixeis da imagem
+    if (pix > img->maxval) {                      // Se o valor do pixel multiplicado pelo factor for maior que o valor máximo
       img->pixel[i] = img->maxval;                                    // O valor do pixel passa a ser o valor máximo
     }
     else {                                                          // Se o valor do pixel multiplicado pelo factor for menor ou igual ao valor máximo
-      img->pixel[i] = (int)(img->pixel[i] * factor+0.5);                         // O valor do pixel passa a ser o valor do pixel multiplicado pelo factor
+      img->pixel[i] = pix;                         // O valor do pixel passa a ser o valor do pixel multiplicado pelo factor
     }
+    PIXMEM+=2;
   }
 
 }
@@ -598,6 +603,9 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
   assert (img2 != NULL);
   assert (px!=NULL);
   assert(py!=NULL);
+  if(img1->width<img2->width || img1->height<img2->height) {
+    return 0;
+  }
   for(int i=0;i<img1->width-img2->width+1;i++) {
     for(int j=0;j<img1->height-img2->height+1;j++) {
       if(ImageMatchSubImage(img1,i,j,img2)) {
@@ -617,14 +625,46 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// Each pixel is substituted by the mean of the pixels in the rectangle
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
-void ImageBlur(Image img, int dx, int dy) { ///
-  assert(img!=NULL);
-  assert(dx>=0 && dy>=0);
-  Image imgBlur = ImageCreate(img->width,img->height,img->maxval);
-  if(imgBlur==NULL) {
-    errCause = "Failed to blur image.";
-    return;
-  }
-  //Falta acabar
-}
+void ImageBlur(Image img, int dx, int dy) {
+    assert(img != NULL);
 
+    int imgWidth = img->width;
+    int imgHeight = img->height;
+    int maxVal = img->maxval;
+    Image blurImg = ImageCreate(imgWidth, imgHeight, maxVal);
+    if (blurImg == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < imgHeight; i++) {
+        for (int j = 0; j < imgWidth; j++) {
+
+            int sum = 0;
+            int numpix = 0;
+
+            int firstY = i-dy<0?0:i-dy;
+            int lastY = i+dy >=imgHeight?imgHeight-1:i+dy;
+            int firstX =j-dx<0?0:j-dx;
+            int lastX = j+dx >=imgWidth?imgWidth-1:j+dx;
+
+            for (int y = firstY; y <= lastY; y++) {
+                for (int x = firstX; x <= lastX; x++) {
+                    sum += ImageGetPixel(img, x, y);
+                    numpix++;
+                }
+            }
+
+            const int MAX_SUM = numpix * maxVal; 
+            sum = sum > MAX_SUM ? MAX_SUM : sum;
+
+            uint8 pixelMed = (uint8)((sum + numpix * 0.5) / numpix);  
+            ImageSetPixel(blurImg, j, i, pixelMed);
+        }
+    }
+
+    for (int i = 0; i < imgHeight; i++) {
+        for (int j = 0; j < imgWidth; j++) {
+            ImageSetPixel(img, j, i, ImageGetPixel(blurImg, j, i));
+        }
+    }
+}
